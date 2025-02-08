@@ -1,5 +1,6 @@
 package com.project.recipe.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,9 +30,11 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;  // 게시글 내용
 
-    private LocalDateTime createdAt = LocalDateTime.now(); // 게시글 작성일
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt = LocalDateTime.now().withNano(0); // 게시글 작성일 (마이크로초는 0으로)
 
-    private LocalDateTime updatedAt = LocalDateTime.now(); // 게시글 수정일
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt = LocalDateTime.now().withNano(0); // 게시글 수정일 (마이크로초는 0으로)
 
     private Boolean isDeleted = false;  // 게시글 삭제 여부
 
