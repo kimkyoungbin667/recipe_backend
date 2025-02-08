@@ -9,7 +9,7 @@ public enum Category {
     SHARE("정보 공유"),
     REVIEW("후기"),
     NOTICE("공지사항"),
-    GREET("가입인사");
+    GREET("가입 인사");
 
     private final String displayName;
 
