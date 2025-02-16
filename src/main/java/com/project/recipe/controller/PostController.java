@@ -3,6 +3,7 @@ package com.project.recipe.controller;
 import com.project.recipe.config.CustomException;
 import com.project.recipe.dto.PostCreateRequest;
 import com.project.recipe.dto.PostListResponse;
+import com.project.recipe.dto.PostUpdateRequest;
 import com.project.recipe.dto.ResponseMessage;
 import com.project.recipe.entity.Post;
 import com.project.recipe.service.PostService;
@@ -32,10 +33,10 @@ public class PostController {
         if(postCreateRequest.getTitle() == null || postCreateRequest.getTitle().isEmpty()) {
             throw new CustomException("제목이 전달되지 않았습니다.");}
         // 내용이 없을 때
-        else if (postCreateRequest.getContent() == null || postCreateRequest.getContent().isEmpty()) {
+        if (postCreateRequest.getContent() == null || postCreateRequest.getContent().isEmpty()) {
             throw new CustomException("내용이 전달되지 않았습니다.");}
         // 카테고리가 없을 때
-        else if (postCreateRequest.getCategory() == null || postCreateRequest.getCategory().isEmpty()) {
+        if (postCreateRequest.getCategory() == null || postCreateRequest.getCategory().isEmpty()) {
             throw new CustomException("카테고리가 전달되지 않았습니다.");}
 
         Post createdPost = postService.createPost(postCreateRequest);
@@ -56,6 +57,52 @@ public class PostController {
         return ResponseEntity.ok(new ResponseMessage(200, "게시글 목록이 성공적으로 조회되었습니다.", postList));
     }
 
+    // 게시글 상세
+    @GetMapping("/{postNo}")
+    public ResponseEntity<?> getPostById(@PathVariable(required = false) Long postNo) {
 
+        // 게시글 번호가 음수 일 때
+        if(postNo<0) {
+            throw new CustomException("올바른 게시글 번호를 입력해주세요.");}
+
+        Post post = postService.getPostById(postNo);
+        return ResponseEntity.ok(new ResponseMessage(200, "게시글 상세 조회 성공", post));
+    }
+
+    // 게시글 수정
+    @PutMapping("/{postNo}")
+    public ResponseEntity<?> updatePost(@PathVariable Long postNo, @RequestBody PostUpdateRequest postUpdateRequest) {
+
+        // 게시글 번호가 음수 일 때
+        if(postNo<0) {
+            throw new CustomException("올바른 게시글 번호를 입력해주세요.");}
+
+        if (postUpdateRequest.getTitle() == null || postUpdateRequest.getTitle().isEmpty()) {
+            throw new CustomException("제목이 전달되지 않았습니다.");
+        }
+        if (postUpdateRequest.getContent() == null || postUpdateRequest.getContent().isEmpty()) {
+            throw new CustomException("내용이 전달되지 않았습니다.");
+        }
+        if (postUpdateRequest.getCategory() == null || postUpdateRequest.getCategory().isEmpty()) {
+            throw new CustomException("카테고리가 전달되지 않았습니다.");
+        }
+
+
+        Post updatedPost = postService.updatePost(postNo, postUpdateRequest);
+
+        return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 수정되었습니다.", updatedPost));
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{postNo}")
+    public ResponseEntity<?> deletePost(@PathVariable Long postNo) {
+
+        // 게시글 번호가 음수 일 때
+        if(postNo<0) {
+            throw new CustomException("올바른 게시글 번호를 입력해주세요.");}
+
+        postService.deletePost(postNo);
+        return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 삭제되었습니다.", null));
+    }
 
 }
