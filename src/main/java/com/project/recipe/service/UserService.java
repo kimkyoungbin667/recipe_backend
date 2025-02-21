@@ -30,6 +30,11 @@ public class UserService {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
 
+        //닉네임 중복 검사
+        if (userRepository.findByNickname(requestDTO.getNickname()).isPresent()) {
+            throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+        }
+        
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(requestDTO.getPassword());
 

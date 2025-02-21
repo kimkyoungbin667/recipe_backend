@@ -1,5 +1,6 @@
 package com.project.recipe.controller;
 
+import com.project.recipe.dto.ResponseMessage;
 import com.project.recipe.dto.UserCreateRequest;
 import com.project.recipe.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,9 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRequest requestDTO) {
+    public ResponseEntity<ResponseMessage> createUser(@Valid @RequestBody UserCreateRequest requestDTO) {
         userService.createUser(requestDTO);
 
-        return ResponseEntity.ok("회원가입 성공!");
+        return ResponseEntity.ok(new ResponseMessage(200,"회원가입 성공",null));
     }
 }
