@@ -45,7 +45,7 @@ public class PostService {
     public Page<PostListResponse> findAllPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findByIsDeletedFalse(pageable);
         return posts.map(post -> new PostListResponse(
-                post.getPostNo(), post.getAuthor().getUserNo(), post.getAuthor().getUserNickname(), post.getAuthor().getUserName(), post.getTitle(), post.getCategory(), post.getCreatedAt()
+                post.getPostNo(), post.getAuthor().getUserNo(), post.getAuthor().getNickname(), post.getAuthor().getName(), post.getTitle(), post.getCategory(), post.getCreatedAt()
                 ));
     }
 
