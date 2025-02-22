@@ -1,10 +1,7 @@
 package com.project.recipe.controller;
 
 import com.project.recipe.config.CustomException;
-import com.project.recipe.dto.PostCreateRequest;
-import com.project.recipe.dto.PostListResponse;
-import com.project.recipe.dto.PostUpdateRequest;
-import com.project.recipe.dto.ResponseMessage;
+import com.project.recipe.dto.*;
 import com.project.recipe.entity.Post;
 import com.project.recipe.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/post")
@@ -27,20 +26,23 @@ public class PostController {
     public ResponseEntity<?> createPost(@RequestBody PostCreateRequest postCreateRequest) {
 
         // 작성자 번호가 없을 때
-        if(postCreateRequest.getAuthorNo() == null) {
-            throw new CustomException("작성자 번호가 전달되지 않았습니다.");}
+        if (postCreateRequest.getAuthorNo() == null) {
+            throw new CustomException("작성자 번호가 전달되지 않았습니다.");
+        }
         // 제목이 없을 때
-        if(postCreateRequest.getTitle() == null || postCreateRequest.getTitle().isEmpty()) {
-            throw new CustomException("제목이 전달되지 않았습니다.");}
+        if (postCreateRequest.getTitle() == null || postCreateRequest.getTitle().isEmpty()) {
+            throw new CustomException("제목이 전달되지 않았습니다.");
+        }
         // 내용이 없을 때
         if (postCreateRequest.getContent() == null || postCreateRequest.getContent().isEmpty()) {
-            throw new CustomException("내용이 전달되지 않았습니다.");}
+            throw new CustomException("내용이 전달되지 않았습니다.");
+        }
         // 카테고리가 없을 때
         if (postCreateRequest.getCategory() == null || postCreateRequest.getCategory().isEmpty()) {
-            throw new CustomException("카테고리가 전달되지 않았습니다.");}
+            throw new CustomException("카테고리가 전달되지 않았습니다.");
+        }
 
         Post createdPost = postService.createPost(postCreateRequest);
-
         return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 등록되었습니다.", createdPost));
     }
 
@@ -50,33 +52,38 @@ public class PostController {
 
         Page<PostListResponse> postList = postService.findAllPosts(pageable);
 
-        if(postList.isEmpty()) {
+        if (postList.isEmpty()) {
             return ResponseEntity.ok(new ResponseMessage(200, "조회된 게시글이 없습니다.", null));
         }
 
         return ResponseEntity.ok(new ResponseMessage(200, "게시글 목록이 성공적으로 조회되었습니다.", postList));
     }
 
-    // 게시글 상세
+    // 게시글 상세 조회 (댓글 포함)
     @GetMapping("/{postNo}")
-    public ResponseEntity<?> getPostById(@PathVariable(required = false) Long postNo) {
+    public ResponseEntity<?> getPostWithComments(@PathVariable Long postNo) {
 
-        // 게시글 번호가 음수 일 때
-        if(postNo<0) {
-            throw new CustomException("올바른 게시글 번호를 입력해주세요.");}
+        // 게시글 번호가 음수일 때 예외 처리
+        if (postNo < 0) {
+            throw new CustomException("올바른 게시글 번호를 입력해주세요.");
+        }
 
-        Post post = postService.getPostById(postNo);
-        return ResponseEntity.ok(new ResponseMessage(200, "게시글 상세 조회 성공", post));
+        // 게시글 상세 조회 + 댓글 포함
+        PostResponse PostResponse = postService.getPostWithComments(postNo);
+
+        return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 조회되었습니다.", PostResponse));
     }
 
     // 게시글 수정
     @PutMapping("/{postNo}")
     public ResponseEntity<?> updatePost(@PathVariable Long postNo, @RequestBody PostUpdateRequest postUpdateRequest) {
 
-        // 게시글 번호가 음수 일 때
-        if(postNo<0) {
-            throw new CustomException("올바른 게시글 번호를 입력해주세요.");}
+        // 게시글 번호가 음수일 때 예외 처리
+        if (postNo < 0) {
+            throw new CustomException("올바른 게시글 번호를 입력해주세요.");
+        }
 
+        // 필수 값 검증
         if (postUpdateRequest.getTitle() == null || postUpdateRequest.getTitle().isEmpty()) {
             throw new CustomException("제목이 전달되지 않았습니다.");
         }
@@ -87,8 +94,7 @@ public class PostController {
             throw new CustomException("카테고리가 전달되지 않았습니다.");
         }
 
-
-        Post updatedPost = postService.updatePost(postNo, postUpdateRequest);
+        PostResponse updatedPost = postService.updatePost(postNo, postUpdateRequest);
 
         return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 수정되었습니다.", updatedPost));
     }
@@ -97,12 +103,12 @@ public class PostController {
     @DeleteMapping("/{postNo}")
     public ResponseEntity<?> deletePost(@PathVariable Long postNo) {
 
-        // 게시글 번호가 음수 일 때
-        if(postNo<0) {
-            throw new CustomException("올바른 게시글 번호를 입력해주세요.");}
+        // 게시글 번호가 음수일 때 예외 처리
+        if (postNo < 0) {
+            throw new CustomException("올바른 게시글 번호를 입력해주세요.");
+        }
 
         postService.deletePost(postNo);
         return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 삭제되었습니다.", null));
     }
-
 }

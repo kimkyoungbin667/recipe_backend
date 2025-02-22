@@ -18,6 +18,6 @@ public class PostListResponse { // 게시글 전체(목록) 조회 DTO
     private String authorName;        // 작성자 이름
     private String title;             // 게시글 제목
     private String category;          // 카테고리
-    private LocalDateTime createdAt;  // 게시글 작성일
+    private String createdAt;  // 게시글 작성일
 
 }
