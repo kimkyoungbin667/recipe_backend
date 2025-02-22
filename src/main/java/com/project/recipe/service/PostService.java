@@ -74,7 +74,6 @@ public class PostService {
     public void deletePost(Long postNo) {
         Post post = postRepository.findById(postNo)
                 .orElseThrow(() -> new CustomException("해당 게시글(postNo: " + postNo + ")을 찾을 수 없습니다."));
-
         // 이미 삭제된 게시글이면 예외 처리
         if (post.getIsDeleted()) {
             throw new CustomException("해당 게시글은 이미 삭제되었습니다.");
