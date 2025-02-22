@@ -4,40 +4,43 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
-@Table(name = "tb_post")
+@Table(name = "tb_comment")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Post {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postNo;
+    private Long commentNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "authorNo", referencedColumnName = "userNo", nullable = false)
-    private User author;
+    @JoinColumn(name = "postNo", nullable = false)
+    private Post post;
 
-    @Column(nullable = false)
-    private String title;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "authorNo", nullable = false)
+    private User author;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
-    private String category;
-
     private String createdAt;
     private String updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentCommentNo")
+    private Comment parent;
+
+    @Column(nullable = false)
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("createdAt DESC")
-    private Set<Comment> comments = new LinkedHashSet<>();
+    private List<Comment> childComments;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -51,13 +54,5 @@ public class Post {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now().format(FORMATTER);
-    }
-
-    public Post(User author, String title, String content, String category) {
-        this.author = author;
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.isDeleted = false;
     }
 }
