@@ -46,9 +46,10 @@ public class CommentService {
         comment.setAuthor(author);
         comment.setContent(request.getContent());
 
-        // 생성 시 현재 시간을 yyyy-MM-dd HH:mm:ss 형식으로 설정
-        comment.setCreatedAt(LocalDateTime.now().format(FORMATTER));
-        comment.setUpdatedAt(LocalDateTime.now().format(FORMATTER));
+        String now = LocalDateTime.now().format(FORMATTER);
+        comment.setCreatedAt(now);
+        comment.setUpdatedAt(now);
+        comment.setIsDeleted(false);
 
         if (request.getParentCommentNo() != null) {
             Comment parent = commentRepository.findById(request.getParentCommentNo())
@@ -64,7 +65,11 @@ public class CommentService {
     @Transactional
     public void deleteComment(Long commentNo) {
         Comment comment = commentRepository.findById(commentNo)
-                .orElseThrow(() -> new CustomException("해당 댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException("해당 댓글(대댓글)을 찾을 수 없습니다."));
+
+        if (Boolean.TRUE.equals(comment.getIsDeleted())) {
+            throw new CustomException("해당 댓글(대댓글)은 이미 삭제되었습니다.");
+        }
 
         comment.setIsDeleted(true);
         commentRepository.save(comment);
