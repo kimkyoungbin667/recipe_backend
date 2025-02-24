@@ -20,7 +20,7 @@ public class JwtTokenUtil {
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getId()) // 주체로 username 설정
-                .claim("userId", user.getId()) // 사용자 ID를 클레임으로 추가
+                .claim("nickname", user.getNickname()) // 사용자 ID를 클레임으로 추가
                 .claim("roles", user.getRole()) // 사용자 역할을 클레임으로 추가 (예: "ADMIN", "USER")
                 .setIssuedAt(new Date()) // 발급 시간
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))  // 만료 시간 설정

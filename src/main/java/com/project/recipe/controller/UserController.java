@@ -17,10 +17,21 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<ResponseMessage> createUser(@Valid @RequestBody UserCreateRequest requestDTO) {
-        userService.createUser(requestDTO);
+    @GetMapping("/check-id")
+    public ResponseEntity<ResponseMessage> checkId(@RequestParam String id) {
+        boolean exists = userService.isIdTaken(id);
+        if (exists) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "이미 사용 중인 아이디입니다.", null));
+        }
+        return ResponseEntity.ok(new ResponseMessage(200, "사용 가능한 아이디입니다.", null));
+    }
 
-        return ResponseEntity.ok(new ResponseMessage(200,"회원가입 성공",null));
+    @GetMapping("/check-nickname")
+    public ResponseEntity<ResponseMessage> checkNickname(@RequestParam String nickname) {
+        boolean exists = userService.isNicknameTaken(nickname);
+        if (exists) {
+            return ResponseEntity.badRequest().body(new ResponseMessage(400, "이미 사용 중인 닉네임입니다.", null));
+        }
+        return ResponseEntity.ok(new ResponseMessage(200, "사용 가능한 닉네임입니다.", null));
     }
 }

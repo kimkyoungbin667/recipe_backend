@@ -24,14 +24,5 @@ public class DataInitializer {
     @Autowired
     private PostService postService;
 
-    @PostConstruct
-    public void init() {
 
-        User user1 = new User("이순신", "거북선123");
-        User user2 = new User("김수로", "하룻강아지123");
-
-        userService.saveAllUsers(Arrays.asList(user1, user2));
-
-
-    }
 }

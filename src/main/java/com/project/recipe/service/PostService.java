@@ -33,7 +33,7 @@ public class PostService {
     @Transactional
     public Post createPost(PostCreateRequest postCreateRequest) {
         // 작성자 ID(authorNo)를 기반으로 User 조회
-        User author = userRepository.findById(postCreateRequest.getAuthorNo())
+        User author = userRepository.findByUserNo(postCreateRequest.getAuthorNo())
                 .orElseThrow(() -> new CustomException("해당 작성자(authorNo: " + postCreateRequest.getAuthorNo() + ")를 찾을 수 없습니다."));
 
         // Post 객체 생성 및 저장
@@ -45,7 +45,7 @@ public class PostService {
     public Page<PostListResponse> findAllPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findByIsDeletedFalse(pageable);
         return posts.map(post -> new PostListResponse(
-                post.getPostNo(), post.getAuthor().getUserNo(), post.getAuthor().getUserNickname(), post.getAuthor().getUserName(), post.getTitle(), post.getCategory(), post.getCreatedAt()
+                post.getPostNo(), post.getAuthor().getUserNo(), post.getAuthor().getNickname(), post.getAuthor().getName(), post.getTitle(), post.getCategory(), post.getCreatedAt()
                 ));
     }
 
