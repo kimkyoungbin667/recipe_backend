@@ -4,17 +4,6 @@ spring:
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
-  mail:
-    host: smtp.gmail.com  # Gmail SMTP 서버
-    port: 587
-    username: cookingDay00@gmail.com
-    password: kobt octh esjx wpqk
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 
   data:
     redis:
@@ -29,6 +18,10 @@ spring:
       hibernate:
         format_sql: true
         show_sql: true
+
+# Import yaml
+  config:
+    import: "application-secret.yaml"
 
 # Port Setting
 server:
