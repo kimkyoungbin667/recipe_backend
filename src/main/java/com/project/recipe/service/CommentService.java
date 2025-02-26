@@ -3,20 +3,22 @@ package com.project.recipe.service;
 import com.project.recipe.config.CustomException;
 import com.project.recipe.dto.CommentCreateRequest;
 import com.project.recipe.dto.CommentResponse;
+import com.project.recipe.dto.CommentUpdateRequest;
 import com.project.recipe.entity.Comment;
 import com.project.recipe.entity.Post;
 import com.project.recipe.entity.User;
 import com.project.recipe.repository.CommentRepository;
 import com.project.recipe.repository.PostRepository;
 import com.project.recipe.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -73,5 +75,38 @@ public class CommentService {
 
         comment.setIsDeleted(true);
         commentRepository.save(comment);
+    }
+
+    @Transactional
+    public CommentResponse updateComment(Long commentNo, CommentUpdateRequest request) {
+        // 댓글 조회
+        Comment comment = commentRepository.findById(commentNo)
+                .orElseThrow(() -> new CustomException("수정할 댓글(대댓글)을 찾을 수 없습니다."));
+
+        // 댓글 내용 수정
+        comment.setContent(request.getContent());
+        commentRepository.save(comment);
+
+        // 대댓글을 CommentResponse 형태로 변환
+        List<CommentResponse> childResponses = comment.getChildComments().stream()
+                .map(child -> new CommentResponse(child, null)) // 대댓글의 하위 대댓글을 고려하지 않음
+                .collect(Collectors.toList());
+
+        // 응답 DTO 반환
+        return new CommentResponse(comment, childResponses);
+    }
+
+    @Transactional(readOnly = true)
+    public CommentResponse getCommentById(Long commentNo) {
+        // 댓글 조회 (없으면 예외 발생)
+        Comment comment = commentRepository.findById(commentNo)
+                .orElseThrow(() -> new CustomException("해당 댓글(대댓글)을 찾을 수 없습니다."));
+
+        // 대댓글 포함하여 응답 생성
+        List<CommentResponse> childComments = comment.getChildComments().stream()
+                .map(child -> new CommentResponse(child, null)) // 대댓글의 하위 대댓글까지 고려하지 않음
+                .collect(Collectors.toList());
+
+        return new CommentResponse(comment, childComments);
     }
 }
