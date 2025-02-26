@@ -60,4 +60,7 @@ public class User {
     @Enumerated(EnumType.STRING)  // Enum 값으로 저장
     @Column(nullable = false)
     private Role role = Role.USER;  // 기본값을 USER로 설정
+
+    @Column(nullable = true)
+    private String profileImage;  // 프로필 이미지 경로
 }
