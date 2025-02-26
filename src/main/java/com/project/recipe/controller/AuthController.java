@@ -54,8 +54,8 @@ public class AuthController {
 
     // JWT 토큰을 HTTP-only 쿠키로 설정
         Cookie cookie = new Cookie("jwt", token);  // 쿠키 이름은 "jwt", 값은 발급된 JWT 토큰
-        cookie.setHttpOnly(false);  // 클라이언트에서 JavaScript로 접근할 수 없도록 설정
-        cookie.setSecure(false);    // HTTPS에서만 쿠키가 전송되도록 설정
+        cookie.setHttpOnly(false);
+        cookie.setSecure(false);
         cookie.setPath("/");       // 도메인 전체에서 유효
         cookie.setMaxAge(3600);    // 쿠키 만료 시간 (1시간)
         response.addCookie(cookie);  // 응답에 쿠키 추가

@@ -20,7 +20,9 @@ public class JwtTokenUtil {
     public String generateToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getId()) // 주체로 username 설정
+                .claim("userNo", user.getUserNo())
                 .claim("nickname", user.getNickname()) // 사용자 ID를 클레임으로 추가
+                .claim("profileImage", user.getProfileImage())
                 .claim("roles", user.getRole()) // 사용자 역할을 클레임으로 추가 (예: "ADMIN", "USER")
                 .setIssuedAt(new Date()) // 발급 시간
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))  // 만료 시간 설정
@@ -35,6 +37,14 @@ public class JwtTokenUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public Long getUserNoFromToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userNo", Long.class);  // 'userNo' 클레임을 Long 타입으로 추출
     }
 
     // 토큰이 만료되었는지 확인
@@ -52,7 +62,7 @@ public class JwtTokenUtil {
     }
 
     // JWT 토큰 유효성 검증
-    public boolean validateToken(String token, String username) {
-        return (username.equals(getUsernameFromToken(token)) && !isTokenExpired(token));
+    public boolean validateToken(String token) {
+        return !isTokenExpired(token);
     }
 }

@@ -1,5 +1,6 @@
 package com.project.recipe.service;
 
+import com.project.recipe.config.CustomException;
 import com.project.recipe.dto.UserCreateRequest;
 import com.project.recipe.dto.UserLoginRequest;
 import com.project.recipe.entity.User;
@@ -70,11 +71,11 @@ public class AuthService {
     public String login(UserLoginRequest loginRequest) {
         // 사용자명으로 사용자 검색
         User user = userRepository.findById(loginRequest.getId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException("존재하지 않는 사용자입니다."));
 
         // 비밀번호 확인
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException("비밀번호가 일치하지 않습니다.");
         }
 
         // JWT 토큰 생성
