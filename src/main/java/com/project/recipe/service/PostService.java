@@ -7,8 +7,9 @@ import com.project.recipe.entity.Post;
 import com.project.recipe.entity.User;
 import com.project.recipe.repository.PostRepository;
 import com.project.recipe.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
+import org.jsoup.Jsoup;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -113,6 +114,38 @@ public class PostService {
         post.setIsDeleted(true);
 
         postRepository.save(post);
+    }
+
+    // HTML 태그 제거 함수
+    private String stripHtml(String html) {
+        return Jsoup.parse(html).text();
+    }
+
+    // 제목 검색
+    @Transactional(readOnly = true)
+    public Page<PostResponse> searchByTitle(String keyword, Pageable pageable) {
+        Page<Post> posts = postRepository.findByTitleContainingIgnoreCaseAndIsDeletedFalse(keyword, pageable);
+        return posts.map(PostResponse::new);
+    }
+
+    // 내용 검색
+    @Transactional(readOnly = true)
+    public Page<PostResponse> searchByContent(String keyword, Pageable pageable) {
+        Page<Post> allPosts = postRepository.findByIsDeletedFalse(pageable); // 삭제되지 않은 모든 게시글 가져오기
+
+        List<PostResponse> filteredPosts = allPosts.getContent().stream()
+                .filter(post -> stripHtml(post.getContent()).toLowerCase().contains(keyword.toLowerCase()))
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(filteredPosts, pageable, filteredPosts.size());
+    }
+
+    // 작성자 닉네임 검색
+    @Transactional(readOnly = true)
+    public Page<PostResponse> searchByAuthor(String nickname, Pageable pageable) {
+        Page<Post> posts = postRepository.findByAuthor_NicknameContainingIgnoreCaseAndIsDeletedFalse(nickname, pageable);
+        return posts.map(PostResponse::new);
     }
 
 }

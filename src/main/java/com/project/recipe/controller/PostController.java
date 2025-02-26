@@ -111,4 +111,34 @@ public class PostController {
         postService.deletePost(postNo);
         return ResponseEntity.ok(new ResponseMessage(200, "게시글이 성공적으로 삭제되었습니다.", null));
     }
+
+    // 검색
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPosts(
+            @RequestParam String keyword,
+            @RequestParam(required = false, defaultValue = "title") String type,
+            Pageable pageable) {
+
+        Page<PostResponse> results;
+
+        switch (type.toLowerCase()) {
+            case "title":
+                results = postService.searchByTitle(keyword, pageable);
+                break;
+            case "content":
+                results = postService.searchByContent(keyword, pageable);
+                break;
+            case "author":
+                results = postService.searchByAuthor(keyword, pageable);
+                break;
+            default:
+                throw new CustomException("잘못된 검색 유형입니다. (title, content, author 중 하나를 선택하세요.)");
+        }
+
+        if(results.isEmpty()) {
+            return ResponseEntity.ok(new ResponseMessage(200, "검색된 결과가 없습니다.", results));
+        }
+
+        return ResponseEntity.ok(new ResponseMessage(200, "성공적으로 검색되었습니다.", results));
+    }
 }
