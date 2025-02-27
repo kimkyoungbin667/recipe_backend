@@ -147,6 +147,12 @@ public class RecipeController {
     // 인기 레시피 조회 (TOP 5)
     @GetMapping("/popular")
     public ResponseEntity<?> getPopularRecipes() {
-        return ResponseEntity.ok(new ResponseMessage(200, "인기 레시피 조회 성공", recipeService.getTop5PopularRecipes()));
+
+        List<RecipeResponse> recipes = recipeService.getTop5PopularRecipes();
+        if (recipes.isEmpty()) {
+            return ResponseEntity.ok(new ResponseMessage(200, "현재 인기 레시피가 존재하지 않습니다.", null));
+        }
+
+        return ResponseEntity.ok(new ResponseMessage(200, "인기 레시피 조회 성공", recipes));
     }
 }

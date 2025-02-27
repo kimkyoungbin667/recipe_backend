@@ -14,10 +14,12 @@ public class AuthorResponse {
     private Long userNo;
     private String name;
     private String nickname;
+    private String profileImage;
 
     public AuthorResponse(User user) {
         this.userNo = user.getUserNo();
         this.name = user.getName();
         this.nickname = user.getNickname();
+        this.profileImage = user.getProfileImage();
     }
 }

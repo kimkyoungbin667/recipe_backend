@@ -163,7 +163,7 @@ public class RecipeService {
     // 인기 레시피 조회 (TOP 5)
     @Transactional(readOnly = true)
     public List<RecipeResponse> getTop5PopularRecipes() {
-        List<Recipe> topRecipes = recipeRepository.findTop5ByOrderByLikeCountDesc();
+        List<Recipe> topRecipes = recipeRepository.findTop5ByLikeCountGreaterThanOrderByLikeCountDescCreatedAtAsc(0);
         return topRecipes.stream().map(RecipeResponse::new).collect(Collectors.toList());
     }
 }
