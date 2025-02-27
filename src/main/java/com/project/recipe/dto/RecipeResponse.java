@@ -19,6 +19,7 @@ public class RecipeResponse {
     private int likeCount;
     private String recipeCategory;
     private String recipeDifficulty;
+    private boolean isLiked;
 
     private List<IngredientResponse> ingredients;
     private List<RecipeStepResponse> steps;
@@ -29,6 +30,7 @@ public class RecipeResponse {
         this.title = recipe.getTitle();
         this.description = recipe.getDescription();
         this.mainImageUrl = recipe.getMainImageUrl();
+        this.isLiked = isLiked;
         this.likeCount = recipe.getLikeCount();
         this.recipeCategory = recipe.getRecipeCategory().name();
         this.recipeDifficulty = recipe.getRecipeDifficulty().name();
@@ -44,5 +46,10 @@ public class RecipeResponse {
         this.images = recipe.getImages().stream()
                 .map(RecipeImageResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    public RecipeResponse(Recipe recipe, boolean isLiked) {
+        this(recipe); // 기존 생성자 호출
+        this.isLiked = isLiked;
     }
 }

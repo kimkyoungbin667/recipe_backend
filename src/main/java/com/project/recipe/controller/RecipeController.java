@@ -66,11 +66,19 @@ public class RecipeController {
 
     // 특정 레시피 조회
     @GetMapping("/{recipeNo}")
-    public ResponseEntity<?> getRecipeById(@PathVariable Long recipeNo) {
+    public ResponseEntity<?> getRecipeById(
+            @RequestParam(required = false) Long userNo, // 사용자의 ID (로그인한 경우 전달)
+            @PathVariable Long recipeNo) {
+
         if (recipeNo <= 0) {
             throw new CustomException("올바른 레시피 번호(recipeNo)를 입력해주세요.");
         }
-        return ResponseEntity.ok(new ResponseMessage(200, "레시피 조회 성공", recipeService.getRecipeById(recipeNo)));
+
+        return ResponseEntity.ok(new ResponseMessage(
+                200,
+                "레시피 조회 성공",
+                recipeService.getRecipeById(userNo, recipeNo) // ✅ userNo 추가
+        ));
     }
 
     // 레시피 수정
@@ -123,25 +131,22 @@ public class RecipeController {
 
     // 좋아요 추가
     @PostMapping("/{recipeNo}/like")
-    public ResponseEntity<?> likeRecipe(@PathVariable Long recipeNo) {
+    public ResponseEntity<?> likeRecipe(
+            @RequestParam Long userNo, // 사용자의 ID를 프론트에서 전달
+            @PathVariable Long recipeNo) {
 
-        if (recipeNo <= 0) {
-            throw new CustomException("올바른 레시피 번호(recipeNo)를 입력해주세요.");
-        }
-
-        recipeService.likeRecipe(recipeNo);
-        return ResponseEntity.ok(new ResponseMessage(200, "레시피에 좋아요를 추가했습니다.", null));
+        recipeService.likeRecipe(userNo, recipeNo);
+        return ResponseEntity.ok(new ResponseMessage(200, "좋아요가 추가되었습니다.", null));
     }
 
     // 좋아요 취소
-    @PostMapping("/{recipeNo}/unlike")
-    public ResponseEntity<?> unlikeRecipe(@PathVariable Long recipeNo) {
+    @DeleteMapping("/{recipeNo}/like")
+    public ResponseEntity<?> unlikeRecipe(
+            @RequestParam Long userNo, // 사용자의 ID를 프론트에서 전달
+            @PathVariable Long recipeNo) {
 
-        if (recipeNo <= 0) {
-            throw new CustomException("올바른 레시피 번호(recipeNo)를 입력해주세요.");
-        }
-        recipeService.unlikeRecipe(recipeNo);
-        return ResponseEntity.ok(new ResponseMessage(200, "레시피 좋아요를 취소했습니다.", null));
+        recipeService.unlikeRecipe(userNo, recipeNo);
+        return ResponseEntity.ok(new ResponseMessage(200, "좋아요가 취소되었습니다.", null));
     }
 
     // 인기 레시피 조회 (TOP 5)
