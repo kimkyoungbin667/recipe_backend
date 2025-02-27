@@ -4,7 +4,26 @@ spring:
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  data:
+    redis:
+      host: localhost
+      port: 6379
 # JPA Setting
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -26,4 +45,8 @@ server:
 
 jwt:
   expiration_time: 86400000 #1일
-  secret: e35a20f16a61bff42d7096120a025d6468392ecae37ae6158c3b6635831334c8afb1fb773947260aa3bc2773842129ef80da20dbd28cb907a677fb7890d267412e76dd01750f3f7489c746de94fed7a4fff6b69401363733117ccc5517438dbfb3b30d9c8025a64bcd970a6a870a589bda79ab36a09a12e5f7d7615c59c680485a1a924d766a9ce05527ac281707e2197c3b0f81fe70e206bb89ff68b46c5ba24ae2bdc1b9b2f72662ba89ddb7b9f6187a18157f35e3285423aeeb754ae2477ce0c4799e7da3ecc5abcad258bb606c6d3a4ec882a1198c69a9e9fa2f968b4dd70dc5711201eee8434795300fb71e532b4d3afdac59001032a5eb544b112da04e98a44cb372ddbac3f0b7f2c99cdcae47294bcf909fe97cc73636e71e01b2f168eca7d66dc52efa9e9d74895862000334028f50c9d293661a4f14efc6015b81c428f994713d7482e5404d74bb6f7b684bd3435623864b9cb9f11a9cd707b3083354b87f6ef698a00aea59d34f3bfe81226e3485a1ed5ea18febe06db7be5c39a540406cc1262b4106e2a5be86693cd4c9a7ac1a38920143a8f6af727196d2b7e9f8de436e8b7ddfa87228c61a817679c360718e76d6958f2bf6da316ab71102a7574f7709ce304f9c01c13100ca06fe2368e2b01d0a0ae6d0ceaedd5336831dc28b4cf3bfac24198e4cae24f3ea8b69907dbef0ebe9c0e39328cb4926a6beefc7
+  secret: myTemporarySecretKey
+
+
+file:
+  upload-dir: uploads/
