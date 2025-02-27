@@ -34,4 +34,15 @@ public class PostResponse {
         this.author = new AuthorResponse(post.getAuthor());
         this.comments = comments;
     }
+
+    public PostResponse(Post post) {
+        this.postNo = post.getPostNo();
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.category = post.getCategory();
+        this.createdAt = post.getCreatedAt();
+        this.updatedAt = post.getUpdatedAt();
+        this.author = new AuthorResponse(post.getAuthor());
+        this.comments = null; // 검색에서는 댓글 제외
+    }
 }

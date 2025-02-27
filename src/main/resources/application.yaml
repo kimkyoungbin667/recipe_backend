@@ -45,4 +45,8 @@ server:
 
 jwt:
   expiration_time: 86400000 #1일
-  secret: ${jwt.secret}
+  secret: myTemporarySecretKey
+
+
+file:
+  upload-dir: uploads/
