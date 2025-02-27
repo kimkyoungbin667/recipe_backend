@@ -22,15 +22,17 @@ public class RecipeService {
     private final IngredientRepository ingredientRepository;
     private final RecipeStepRepository recipeStepRepository;
     private final RecipeImageRepository recipeImageRepository;
+    private final RecipeLikeRepository recipeLikeRepository;
 
     public RecipeService(RecipeRepository recipeRepository, UserRepository userRepository,
                          IngredientRepository ingredientRepository, RecipeStepRepository recipeStepRepository,
-                         RecipeImageRepository recipeImageRepository) {
+                         RecipeImageRepository recipeImageRepository, RecipeLikeRepository recipeLikeRepository) {
         this.recipeRepository = recipeRepository;
         this.userRepository = userRepository;
         this.ingredientRepository = ingredientRepository;
         this.recipeStepRepository = recipeStepRepository;
         this.recipeImageRepository = recipeImageRepository;
+        this.recipeLikeRepository = recipeLikeRepository;
     }
 
     // 레시피 등록
@@ -74,12 +76,17 @@ public class RecipeService {
         return recipes.map(RecipeResponse::new);
     }
 
+
     // 특정 레시피 조회
     @Transactional(readOnly = true)
-    public RecipeResponse getRecipeById(Long recipeNo) {
+    public RecipeResponse getRecipeById(Long userNo, Long recipeNo) {
         Recipe recipe = recipeRepository.findById(recipeNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 레시피를 찾을 수 없습니다."));
-        return new RecipeResponse(recipe);
+
+        // 현재 사용자가 좋아요를 눌렀는지 확인 (userNo가 null이면 false)
+        boolean isLiked = (userNo != null) && recipeLikeRepository.existsByUser_UserNoAndRecipe_RecipeNo(userNo, recipeNo);
+
+        return new RecipeResponse(recipe, isLiked);
     }
 
     // 레시피 수정
@@ -96,7 +103,7 @@ public class RecipeService {
         recipe.setMainImageUrl(request.getMainImageUrl());
         recipe.setTip(request.getTip());
 
-        // ✅ 기존 재료 삭제 후 새로운 값으로 변경
+        // 기존 재료 삭제 후 새로운 값으로 변경
         ingredientRepository.deleteByRecipe(recipe); // 기존 재료 삭제
         List<Ingredient> newIngredients = request.getIngredients().stream()
                 .map(dto -> new Ingredient(recipe, dto.getName(), dto.getQuantity(), dto.getNote()))
@@ -140,30 +147,46 @@ public class RecipeService {
         recipeRepository.save(recipe);
     }
 
-    // 좋아요 추가
+    // 좋아요 추가 (중복 방지)
     @Transactional
-    public void likeRecipe(Long recipeNo) {
+    public void likeRecipe(Long userNo, Long recipeNo) {
         Recipe recipe = recipeRepository.findById(recipeNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 레시피를 찾을 수 없습니다."));
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
 
-        recipe.increaseLikeCount();
+        // 이미 좋아요를 눌렀는지 확인
+        if (recipeLikeRepository.existsByUser_UserNoAndRecipe_RecipeNo(userNo, recipeNo)) {
+            throw new IllegalStateException("이미 좋아요를 눌렀습니다.");
+        }
+
+        // 좋아요 추가
+        recipeLikeRepository.save(new RecipeLike(user, recipe));
+        recipe.increaseLikeCount(); // 좋아요 수 증가
         recipeRepository.save(recipe);
     }
 
     // 좋아요 취소
     @Transactional
-    public void unlikeRecipe(Long recipeNo) {
+    public void unlikeRecipe(Long userNo, Long recipeNo) {
         Recipe recipe = recipeRepository.findById(recipeNo)
                 .orElseThrow(() -> new IllegalArgumentException("해당 레시피를 찾을 수 없습니다."));
 
-        recipe.decreaseLikeCount();
+        // 좋아요를 누른 적이 있는지 확인
+        if (!recipeLikeRepository.existsByUser_UserNoAndRecipe_RecipeNo(userNo, recipeNo)) {
+            throw new IllegalStateException("좋아요를 누른 적이 없습니다.");
+        }
+
+        // 좋아요 삭제
+        recipeLikeRepository.deleteByUser_UserNoAndRecipe_RecipeNo(userNo, recipeNo);
+        recipe.decreaseLikeCount(); // 좋아요 수 감소
         recipeRepository.save(recipe);
     }
 
     // 인기 레시피 조회 (TOP 5)
     @Transactional(readOnly = true)
     public List<RecipeResponse> getTop5PopularRecipes() {
-        List<Recipe> topRecipes = recipeRepository.findTop5ByOrderByLikeCountDesc();
+        List<Recipe> topRecipes = recipeRepository.findTop5ByLikeCountGreaterThanOrderByLikeCountDescCreatedAtAsc(0);
         return topRecipes.stream().map(RecipeResponse::new).collect(Collectors.toList());
     }
 }
